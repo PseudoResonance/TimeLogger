@@ -13,6 +13,8 @@ import java.util.List;
 public class UserManager {
 	
 	private static List<User> users = new ArrayList<User>();
+	protected static LoggingType logging = LoggingType.NONE;
+	protected static User loggingUser = null;
 	
 	public static void addUser(User u) {
 		users.add(u);
@@ -109,6 +111,12 @@ public class UserManager {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+	
+	enum LoggingType {
+		IN,
+		OUT,
+		NONE;
 	}
 
 }

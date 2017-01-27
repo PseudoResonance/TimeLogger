@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -46,13 +47,24 @@ public class TimeLogger {
 	static JFrame jf;
 	static Dimension listSize = new Dimension(150, 300);
 	static Dimension listFrame = new Dimension(150, 330);
-	static Dimension button = new Dimension(150, 190);
-	static Dimension fullSize = new Dimension(550, 500);
+	static Dimension fullSize = new Dimension(550, 435);
 	static ImageIcon icon;
 	static JList<User> outList;
 	static JList<User> inList;
 	static DefaultListModel<User> outListModel;
 	static DefaultListModel<User> inListModel;
+
+	static JFrame passwordCheck;
+	static JPasswordField password;
+	static JButton passCancel;
+	static JButton passOkay;
+
+	static JFrame newUser;
+	static JTextField name;
+	static JPasswordField newPassword;
+	static JPasswordField newPasswordCheck;
+	static JButton newCancel;
+	static JButton newOkay;
 	
 	private static JTextArea info;
 
@@ -91,6 +103,8 @@ public class TimeLogger {
 		jf.add(info);
 		jf.setIconImage(icon.getImage());
 		jf.setVisible(true);
+		passwordCheck = setupPasswordCheck();
+		newUser = setupNewUser();
 	}
 
 	public static long getDifference(long first, long second) {
@@ -161,6 +175,34 @@ public class TimeLogger {
 				Listeners.action(ActionType.EXPORT, e);
 			}
 		});
+		passCancel = new JButton("Cancel");
+		passCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				password.setText("");
+				passwordCheck.setVisible(false);
+			}
+		});
+		passOkay = new JButton("Okay");
+		passOkay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Listeners.checkPassword();
+			}
+		});
+		newCancel = new JButton("Cancel");
+		newCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				name.setText("");
+				newPassword.setText("");
+				newPasswordCheck.setText("");
+				TimeLogger.newUser.setVisible(false);
+			}
+		});
+		newOkay = new JButton("Okay");
+		newOkay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Listeners.newUser();
+			}
+		});
 		panel.add(login);
 		panel.add(logout);
 		panel.add(newUser);
@@ -203,24 +245,109 @@ public class TimeLogger {
 		JTextArea text = new JTextArea(1, 20);
 		text.setText("");
 		text.setToolTipText("Double click on a user to view their time and meetings attended");
+		text.setBackground(jf.getBackground());
 		return text;
 	}
 	
 	public static JFrame setupPasswordCheck() {
-		JFrame check = new JFrame();
-		check.setLayout(new FlowLayout());
-		check.setPreferredSize(new Dimension(350, 150));
-		JPanel passInput2 = new JPanel();
-		this.passwordInput2 = new JPasswordField(20);
-		JLabel pass2 = new JLabel("Password:");
-		passInput2.add(pass2);
-		passInput2.add(this.passwordInput2);
-		check.add(passInput2);
-		check.add(cancel2);
-		check.add(verify);
-		check.pack();
-		check.setVisible(false);
-		check.getRootPane().setDefaultButton(verify);
+		JFrame frame = new JFrame("Enter Password");
+		frame.setLayout(new FlowLayout());
+		frame.setPreferredSize(new Dimension(350, 125));
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout());
+		password = new JPasswordField(20);
+		JLabel label = new JLabel("Password:");
+		panel.add(label);
+		panel.add(password);
+		frame.add(panel);
+		frame.add(passCancel);
+		frame.add(passOkay);
+		frame.pack();
+		frame.setVisible(false);
+		frame.getRootPane().setDefaultButton(passOkay);
+		frame.pack();
+		return frame;
+	}
+	
+	public static void setPasswordCheck() {
+		password.setText("");
+		passwordCheck.setSize(new Dimension(350, 125));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int xs = (int) screenSize.getWidth() / 2;
+		int ys = (int) screenSize.getHeight() / 2;
+		int bx = (int) passwordCheck.getWidth() / 2;
+		int by = (int) passwordCheck.getHeight() / 2;
+		int x = xs - bx;
+		int y = ys - by;
+		passwordCheck.setLocation(x, y);
+		passwordCheck.pack();
+		passwordCheck.setVisible(true);
+		password.requestFocus();
+	}
+	
+	public static JFrame setupNewUser() {
+		JFrame frame = new JFrame("Create New User");
+		frame.setLayout(new FlowLayout());
+		frame.setPreferredSize(new Dimension(400, 200));
+		JPanel panel = new JPanel();
+		panel.setLayout(new WrapLayout());
+		JLabel nameLabel = new JLabel("Enter Name:");
+		name = new JTextField(20);
+		newPassword = new JPasswordField(20);
+		JLabel passLabel = new JLabel("Enter Password:");
+		newPasswordCheck = new JPasswordField(20);
+		JLabel passCheckLabel = new JLabel("Enter Password Again:");
+		panel.add(nameLabel);
+		panel.add(name);
+		panel.add(passLabel);
+		panel.add(newPassword);
+		panel.add(passCheckLabel);
+		panel.add(newPasswordCheck);
+		frame.add(panel);
+		frame.add(newCancel);
+		frame.add(newOkay);
+		frame.pack();
+		frame.setVisible(false);
+		frame.getRootPane().setDefaultButton(newOkay);
+		frame.pack();
+		return frame;
+	}
+	
+	public static void setNewUser() {
+		name.setText("");
+		newPassword.setText("");
+		newPasswordCheck.setText("");
+		name.requestFocus();
+		newUser.setPreferredSize(new Dimension(400, 200));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int xs = (int) screenSize.getWidth() / 2;
+		int ys = (int) screenSize.getHeight() / 2;
+		int bx = (int) newUser.getWidth() / 2;
+		int by = (int) newUser.getHeight() / 2;
+		int x = xs - bx;
+		int y = ys - by;
+		newUser.setLocation(x, y);
+		newUser.pack();
+		newUser.setVisible(true);
+	}
+	
+	public static void setNewUser(String name, String pass) {
+		TimeLogger.name.setText(name);
+		newPassword.setText(pass);
+		newPasswordCheck.setText("");
+		TimeLogger.name.requestFocus();
+		newUser.setPreferredSize(new Dimension(400, 200));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int xs = (int) screenSize.getWidth() / 2;
+		int ys = (int) screenSize.getHeight() / 2;
+		int bx = (int) newUser.getWidth() / 2;
+		int by = (int) newUser.getHeight() / 2;
+		int x = xs - bx;
+		int y = ys - by;
+		newUser.setLocation(x, y);
+		newUser.pack();
+		newUser.setVisible(true);
+		TimeLogger.name.requestFocus();
 	}
 	
 	public static void setTime(String t) {
