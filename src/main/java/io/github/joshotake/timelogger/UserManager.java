@@ -58,24 +58,27 @@ public class UserManager {
 	@SuppressWarnings("unchecked")
 	public static void deserializeUsers() {
 		List<User> users = new ArrayList<User>();
-		try {
-			FileInputStream fis = new FileInputStream("users.ser");
-			ObjectInputStream ois = new ObjectInputStream(fis);
-			users = (ArrayList<User>) ois.readObject();
-			ois.close();
-			fis.close();
-		} catch (FileNotFoundException fe) {
-			return;
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			return;
-		} catch (ClassNotFoundException c) {
-			System.out.println("Class not found");
-			c.printStackTrace();
-			return;
-		}
-		for (User u : users) {
-			UserManager.users.add(u);
+		File usersFile = new File("users.ser");
+		if (usersFile.exists()) {
+			try {
+				FileInputStream fis = new FileInputStream(usersFile);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				users = (ArrayList<User>) ois.readObject();
+				ois.close();
+				fis.close();
+			} catch (FileNotFoundException fe) {
+				return;
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				return;
+			} catch (ClassNotFoundException c) {
+				System.out.println("Class not found");
+				c.printStackTrace();
+				return;
+			}
+			for (User u : users) {
+				UserManager.users.add(u);
+			}
 		}
 		File importFile = new File("import.ser");
 		if (importFile.exists()) {
@@ -126,6 +129,10 @@ public class UserManager {
 			fos.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		}
+		File importFile = new File("import.ser");
+		if (importFile.exists()) {
+			importFile.renameTo(new File("imported.ser"));
 		}
 	}
 	
