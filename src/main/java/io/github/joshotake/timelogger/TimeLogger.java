@@ -2,6 +2,7 @@ package io.github.joshotake.timelogger;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,14 +46,16 @@ import io.github.joshotake.timelogger.Listeners.ActionType;
 public class TimeLogger {
 
 	static JFrame jf;
-	static Dimension listSize = new Dimension(150, 300);
-	static Dimension listFrame = new Dimension(150, 330);
-	static Dimension fullSize = new Dimension(550, 435);
+	static Dimension listSize = new Dimension(200, 460);
+	static Dimension listFrame = new Dimension(200, 490);
+	static Dimension buttonsFrame = new Dimension(186, 490);
+	static Dimension fullSize = new Dimension(650, 600);
 	static ImageIcon icon;
 	static JList<User> outList;
 	static JList<User> inList;
 	static DefaultListModel<User> outListModel;
 	static DefaultListModel<User> inListModel;
+	static Font font;
 
 	static JFrame passwordCheck;
 	static JPasswordField password;
@@ -65,6 +68,13 @@ public class TimeLogger {
 	static JPasswordField newPasswordCheck;
 	static JButton newCancel;
 	static JButton newOkay;
+
+	static JFrame editUser;
+	static JPasswordField oldPassword;
+	static JPasswordField editPassword;
+	static JPasswordField editPasswordCheck;
+	static JButton editCancel;
+	static JButton editOkay;
 	
 	private static JTextArea info;
 
@@ -105,6 +115,9 @@ public class TimeLogger {
 		jf.setVisible(true);
 		passwordCheck = setupPasswordCheck();
 		newUser = setupNewUser();
+		editUser = setupEditUser();
+		jf.setFont(font);
+		Listeners.setupDialog();
 	}
 
 	public static long getDifference(long first, long second) {
@@ -143,14 +156,18 @@ public class TimeLogger {
 		label.setVerticalAlignment(SwingConstants.BOTTOM);
 		panel.add(label);
 		panel.add(scroll);
+		Font f = label.getFont();
+		font = new Font(f.getFamily(), f.getStyle(), f.getSize() + 4);
+		label.setFont(font);
+		outList.setFont(font);
 		return panel;
 	}
 
 	private static JPanel addButtons() {
 		JPanel panel = new JPanel();
-		FlowLayout layout = new FlowLayout();
+		FlowLayout layout = new WrapLayout();
 		panel.setLayout(layout);
-		panel.setPreferredSize(listFrame);
+		panel.setPreferredSize(buttonsFrame);
 		JButton login = new JButton("Log In");
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -167,6 +184,12 @@ public class TimeLogger {
 		newUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Listeners.action(ActionType.NEWUSER, e);
+			}
+		});
+		JButton editUser = new JButton("Change Password");
+		editUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Listeners.action(ActionType.EDITUSER, e);
 			}
 		});
 		JButton spreadSheet = new JButton("Export Spreadsheet");
@@ -203,10 +226,31 @@ public class TimeLogger {
 				Listeners.newUser();
 			}
 		});
+		editCancel = new JButton("Cancel");
+		editCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				oldPassword.setText("");
+				editPassword.setText("");
+				editPasswordCheck.setText("");
+				TimeLogger.editUser.setVisible(false);
+			}
+		});
+		editOkay = new JButton("Okay");
+		editOkay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Listeners.editUser();
+			}
+		});
 		panel.add(login);
 		panel.add(logout);
 		panel.add(newUser);
+		panel.add(editUser);
 		panel.add(spreadSheet);
+		login.setFont(font);
+		logout.setFont(font);
+		newUser.setFont(font);
+		editUser.setFont(font);
+		spreadSheet.setFont(font);
 		return panel;
 	}
 
@@ -238,6 +282,8 @@ public class TimeLogger {
 		label.setVerticalAlignment(SwingConstants.BOTTOM);
 		panel.add(label);
 		panel.add(scroll);
+		label.setFont(font);
+		inList.setFont(font);
 		return panel;
 	}
 	
@@ -246,13 +292,68 @@ public class TimeLogger {
 		text.setText("");
 		text.setToolTipText("Double click on a user to view their time and meetings attended");
 		text.setBackground(jf.getBackground());
+		text.setFont(font);
 		return text;
+	}
+	
+	public static JFrame setupEditUser() {
+		JFrame frame = new JFrame("Change Password");
+		frame.setLayout(new FlowLayout());
+		frame.setPreferredSize(new Dimension(350, 275));
+		JPanel panel = new JPanel();
+		panel.setLayout(new WrapLayout());
+		oldPassword = new JPasswordField(20);
+		JLabel oldLabel = new JLabel("Enter Old Passwod:");
+		editPassword = new JPasswordField(20);
+		JLabel editPassLabel = new JLabel("Enter Password:");
+		editPasswordCheck = new JPasswordField(20);
+		JLabel editPassCheckLabel = new JLabel("Enter Password Again:");
+		panel.add(oldLabel);
+		panel.add(oldPassword);
+		panel.add(editPassLabel);
+		panel.add(editPassword);
+		panel.add(editPassCheckLabel);
+		panel.add(editPasswordCheck);
+		frame.add(panel);
+		frame.add(editCancel);
+		frame.add(editOkay);
+		frame.pack();
+		frame.setVisible(false);
+		frame.getRootPane().setDefaultButton(editOkay);
+		oldLabel.setFont(font);
+		oldPassword.setFont(font);
+		editPassLabel.setFont(font);
+		editPassword.setFont(font);
+		editPasswordCheck.setFont(font);
+		editPassCheckLabel.setFont(font);
+		editCancel.setFont(font);
+		editOkay.setFont(font);
+		frame.pack();
+		return frame;
+	}
+	
+	public static void setEditUser() {
+		oldPassword.setText("");
+		editPassword.setText("");
+		editPasswordCheck.setText("");
+		editUser.setPreferredSize(new Dimension(350, 275));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int xs = (int) screenSize.getWidth() / 2;
+		int ys = (int) screenSize.getHeight() / 2;
+		int bx = (int) editUser.getWidth() / 2;
+		int by = (int) editUser.getHeight() / 2;
+		int x = xs - bx;
+		int y = ys - by;
+		editUser.setLocation(x, y);
+		editUser.pack();
+		editUser.setVisible(true);
+		oldPassword.requestFocus();
 	}
 	
 	public static JFrame setupPasswordCheck() {
 		JFrame frame = new JFrame("Enter Password");
 		frame.setLayout(new FlowLayout());
-		frame.setPreferredSize(new Dimension(350, 125));
+		frame.setPreferredSize(new Dimension(425, 140));
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		password = new JPasswordField(20);
@@ -265,13 +366,17 @@ public class TimeLogger {
 		frame.pack();
 		frame.setVisible(false);
 		frame.getRootPane().setDefaultButton(passOkay);
+		label.setFont(font);
+		password.setFont(font);
+		passCancel.setFont(font);
+		passOkay.setFont(font);
 		frame.pack();
 		return frame;
 	}
 	
 	public static void setPasswordCheck() {
 		password.setText("");
-		passwordCheck.setSize(new Dimension(350, 125));
+		passwordCheck.setSize(new Dimension(425, 140));
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int xs = (int) screenSize.getWidth() / 2;
 		int ys = (int) screenSize.getHeight() / 2;
@@ -288,7 +393,7 @@ public class TimeLogger {
 	public static JFrame setupNewUser() {
 		JFrame frame = new JFrame("Create New User");
 		frame.setLayout(new FlowLayout());
-		frame.setPreferredSize(new Dimension(400, 200));
+		frame.setPreferredSize(new Dimension(350, 275));
 		JPanel panel = new JPanel();
 		panel.setLayout(new WrapLayout());
 		JLabel nameLabel = new JLabel("Enter Name:");
@@ -309,6 +414,14 @@ public class TimeLogger {
 		frame.pack();
 		frame.setVisible(false);
 		frame.getRootPane().setDefaultButton(newOkay);
+		nameLabel.setFont(font);
+		name.setFont(font);
+		passLabel.setFont(font);
+		newPassword.setFont(font);
+		passCheckLabel.setFont(font);
+		newPasswordCheck.setFont(font);
+		newCancel.setFont(font);
+		newOkay.setFont(font);
 		frame.pack();
 		return frame;
 	}
@@ -318,7 +431,7 @@ public class TimeLogger {
 		newPassword.setText("");
 		newPasswordCheck.setText("");
 		name.requestFocus();
-		newUser.setPreferredSize(new Dimension(400, 200));
+		newUser.setSize(new Dimension(350, 275));
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int xs = (int) screenSize.getWidth() / 2;
 		int ys = (int) screenSize.getHeight() / 2;
@@ -336,7 +449,7 @@ public class TimeLogger {
 		newPassword.setText(pass);
 		newPasswordCheck.setText("");
 		TimeLogger.name.requestFocus();
-		newUser.setPreferredSize(new Dimension(400, 200));
+		newUser.setPreferredSize(new Dimension(350, 275));
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int xs = (int) screenSize.getWidth() / 2;
 		int ys = (int) screenSize.getHeight() / 2;

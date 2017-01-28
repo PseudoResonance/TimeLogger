@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserManager {
@@ -15,6 +17,8 @@ public class UserManager {
 	private static List<User> users = new ArrayList<User>();
 	protected static LoggingType logging = LoggingType.NONE;
 	protected static User loggingUser = null;
+	protected static boolean editing = false;
+	protected static User editingUser = null;
 	
 	public static void addUser(User u) {
 		users.add(u);
@@ -98,6 +102,18 @@ public class UserManager {
 				newUser.setTotalMeetings(u.getTotalMeetings());
 				UserManager.users.add(newUser);
 			}
+		}
+		sort();
+	}
+	
+	public static void sort() {
+		if (users.size() > 0) {
+			Collections.sort(users, new Comparator<User>() {
+				@Override
+				public int compare(final User object1, final User object2) {
+					return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
+				}
+			});
 		}
 	}
 
